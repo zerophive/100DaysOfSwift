@@ -1,4 +1,4 @@
-#\#100DaysOfSwift - the repo
+# #100DaysOfSwift - the repo
 
 ###a compendium of code, chaos and errors
 
