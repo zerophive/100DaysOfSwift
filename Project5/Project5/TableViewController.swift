@@ -74,7 +74,7 @@ class TableViewController: UITableViewController {
 			return
 		}
 		if answer == title {
-			errorTitle = "You entered is the original word"
+			errorTitle = "You entered the original word"
 			errorMessage = "Sloppy work Roscoe"
 			showErrorMessage(title: errorTitle, message: errorMessage)
 			return
@@ -125,7 +125,6 @@ class TableViewController: UITableViewController {
 		let checker = UITextChecker()
 		let range = NSRange(location: 0, length: word.utf16.count)
 		let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
-		print(misspelledRange.location)
 		return misspelledRange.location == NSNotFound
 	}
 	
