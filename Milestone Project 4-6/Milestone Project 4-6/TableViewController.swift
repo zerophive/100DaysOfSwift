@@ -80,9 +80,9 @@ class TableViewController: UITableViewController {
 	
 	@objc func clearGroceryList() {
 		let ac = UIAlertController(title: "Erase your grocery list?", message: nil, preferredStyle: .alert)
-		ac.addAction(UIAlertAction(title: "Yes", style: .destructive) { _ in
-			self.groceryList.removeAll()
-			self.tableView.reloadData()
+		ac.addAction(UIAlertAction(title: "Yes", style: .destructive) { [weak self] _ in
+			self?.groceryList.removeAll()
+			self?.tableView.reloadData()
 		})
 		ac.addAction(UIAlertAction(title: "Nein", style: .default))
 		present(ac, animated: true)
@@ -94,7 +94,7 @@ class TableViewController: UITableViewController {
 		vc.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
 		present(vc, animated: true)
 	}
-
+	
 	func addItem(_ item: String) {
 		if groceryList.contains(item) {
 			showErrorMessage(title: "Already entered this item", message: nil)
