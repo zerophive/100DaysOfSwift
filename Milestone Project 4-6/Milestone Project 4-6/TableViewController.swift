@@ -33,12 +33,23 @@ class TableViewController: UITableViewController {
 		cell.textLabel?.text = groceryList[indexPath.row]
         return cell
     }
-
+	
 	override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
 		if editingStyle == .delete {
 			groceryList.remove(at: indexPath.row)
 			tableView.deleteRows(at: [indexPath], with: .automatic)
 		}
+	}
+	
+	override func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+		let editAction = UIContextualAction(style: .normal, title: "edit") { (action, sourceView, completionHandler) in
+			
+			self.editGroceryItem(indexPath: indexPath)
+			completionHandler(true)
+		}
+		let leftSwipe = UISwipeActionsConfiguration(actions: [editAction])
+		leftSwipe.performsFirstActionWithFullSwipe = true
+		return leftSwipe
 	}
 	
 	@objc func addGroceryItem() {
@@ -48,6 +59,20 @@ class TableViewController: UITableViewController {
 		let addItem = UIAlertAction(title: "Add", style: .default) {
 			[weak self, weak ac] _ in guard let theItem = ac?.textFields?[0].text else { return }
 			self?.addItem(theItem.lowercased())
+		}
+		ac.addAction(addItem)
+		present(ac, animated: true)
+	}
+	
+	func editGroceryItem(indexPath: IndexPath) {
+		let ac = UIAlertController(title: "Edit grocery item", message: nil, preferredStyle: .alert)
+		ac.addTextField()
+		ac.textFields?[0].text = groceryList[indexPath.row]
+		
+		let addItem = UIAlertAction(title: "Add", style: .default) {
+			[weak self, weak ac] _ in guard let theItem = ac?.textFields?[0].text else { return }
+			self?.groceryList[indexPath.row] = theItem
+			self?.tableView.reloadRows(at: [indexPath], with: .automatic)
 		}
 		ac.addAction(addItem)
 		present(ac, animated: true)
