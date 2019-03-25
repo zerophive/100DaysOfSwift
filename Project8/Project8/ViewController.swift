@@ -129,6 +129,8 @@ class ViewController: UIViewController {
 				letterButton.titleLabel?.font = UIFont.systemFont(ofSize: 36)
 				letterButton.setTitle("WWW", for: .normal)
 				letterButton.addTarget(self, action: #selector(letterTapped), for: .touchUpInside)
+				letterButton.layer.borderWidth = 1
+				letterButton.layer.borderColor = UIColor.lightGray.cgColor
 				
 				let frame = CGRect(x: column * width, y: row * height, width: width, height: height)
 				letterButton.frame = frame
@@ -165,11 +167,23 @@ class ViewController: UIViewController {
 			currentAnswer.text = ""
 			score += 1
 			
-			if score % 7 == 0 {
+			var hiddenCount = 0
+			for button in letterButtons {
+				if button.isHidden {
+					hiddenCount += 1
+				}
+			}
+			if hiddenCount == 20 {
 				let ac = UIAlertController(title: "Well done!", message: "Are you ready for the next level", preferredStyle: .alert)
 				ac.addAction(UIAlertAction(title: "Let's go!", style: .default, handler: levelUp))
 				present(ac, animated: true)
 			}
+		} else {
+			let ac = UIAlertController(title: "WRONG!!", message: "Your answer is incorrect", preferredStyle: .alert)
+			ac.addAction(UIAlertAction(title: "Continue", style: .default))
+			present(ac, animated: true)
+			clearTapped(UIButton())
+			score -= 1
 		}
 	}
 	
