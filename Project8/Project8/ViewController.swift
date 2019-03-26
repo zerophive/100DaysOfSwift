@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 class ViewController: UIViewController {
 	var cluesLabel: UILabel!
@@ -17,6 +18,13 @@ class ViewController: UIViewController {
 	
 	var activatedButtons = [UIButton]()
 	var solutions = [String]()
+	
+	var soundPlayer = AVAudioPlayer()
+	
+	enum SoundType {
+		case Wrong
+		case Correct
+	}
 	
 	var score = 0 {
 		didSet {
@@ -131,7 +139,7 @@ class ViewController: UIViewController {
 				letterButton.addTarget(self, action: #selector(letterTapped), for: .touchUpInside)
 				letterButton.layer.borderWidth = 1
 				letterButton.layer.borderColor = UIColor.lightGray.cgColor
-				
+
 				let frame = CGRect(x: column * width, y: row * height, width: width, height: height)
 				letterButton.frame = frame
 				buttonsView.addSubview(letterButton)
@@ -157,6 +165,7 @@ class ViewController: UIViewController {
 	@objc func submitTapped(_ sender: UIButton) {
 		guard let answerText = currentAnswer.text else { return }
 		if let solutionPosition = solutions.firstIndex(of: answerText) {
+			playSound(.Correct)
 			activatedButtons.removeAll()
 			
 			var splitAnswers = answersLabel.text?.components(separatedBy: "\n")
@@ -179,11 +188,14 @@ class ViewController: UIViewController {
 				present(ac, animated: true)
 			}
 		} else {
+			playSound(.Wrong)
 			let ac = UIAlertController(title: "WRONG!!", message: "Your answer is incorrect", preferredStyle: .alert)
-			ac.addAction(UIAlertAction(title: "Continue", style: .default))
+			ac.addAction(UIAlertAction(title: "Continue", style: .default){_ in
+				self.clearTapped(UIButton())
+				self.score -= 1
+			})
 			present(ac, animated: true)
-			clearTapped(UIButton())
-			score -= 1
+		
 		}
 	}
 	
@@ -244,6 +256,20 @@ class ViewController: UIViewController {
 				letterButtons[i].setTitle(letterBits[i], for: .normal)
 			}
 		}
+	}
+	
+	func playSound(_ type: SoundType) {
+		let soundFile: String
+		if type == .Correct {
+			soundFile = "family-feud-clang"
+		} else {
+			soundFile = "family-feud-buzzer"
+		}
+		
+		guard let soundFileURL = Bundle.main.url(forResource: soundFile, withExtension: ".wav") else { return }
+
+		soundPlayer = try! AVAudioPlayer(contentsOf: soundFileURL)
+		soundPlayer.play()
 	}
 }
 

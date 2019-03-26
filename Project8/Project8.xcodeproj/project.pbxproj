@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A9700795224A08E700DE2BF9 /* family-feud-buzzer.wav in Resources */ = {isa = PBXBuildFile; fileRef = A9700794224A08E700DE2BF9 /* family-feud-buzzer.wav */; };
+		A9700799224A14E300DE2BF9 /* family-feud-clang.wav in Resources */ = {isa = PBXBuildFile; fileRef = A9700798224A14E300DE2BF9 /* family-feud-clang.wav */; };
 		A98D7AE3224457700075051C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98D7AE2224457700075051C /* AppDelegate.swift */; };
 		A98D7AE5224457700075051C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98D7AE4224457700075051C /* ViewController.swift */; };
 		A98D7AE8224457700075051C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A98D7AE6224457700075051C /* Main.storyboard */; };
@@ -17,6 +19,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A9700794224A08E700DE2BF9 /* family-feud-buzzer.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "family-feud-buzzer.wav"; sourceTree = "<group>"; };
+		A9700798224A14E300DE2BF9 /* family-feud-clang.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "family-feud-clang.wav"; sourceTree = "<group>"; };
 		A98D7ADF224457700075051C /* Project8.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Project8.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A98D7AE2224457700075051C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A98D7AE4224457700075051C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -66,6 +70,8 @@
 				A98D7AEE224457710075051C /* Info.plist */,
 				A9F5C7B52245C2B00078E8E7 /* level1.txt */,
 				A9F5C7B62245C2B00078E8E7 /* level2.txt */,
+				A9700794224A08E700DE2BF9 /* family-feud-buzzer.wav */,
+				A9700798224A14E300DE2BF9 /* family-feud-clang.wav */,
 			);
 			path = Project8;
 			sourceTree = "<group>";
@@ -102,6 +108,7 @@
 				TargetAttributes = {
 					A98D7ADE224457700075051C = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1020;
 					};
 				};
 			};
@@ -128,7 +135,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9700795224A08E700DE2BF9 /* family-feud-buzzer.wav in Resources */,
 				A9F5C7B82245C2B10078E8E7 /* level2.txt in Resources */,
+				A9700799224A14E300DE2BF9 /* family-feud-clang.wav in Resources */,
 				A98D7AED224457710075051C /* LaunchScreen.storyboard in Resources */,
 				A9F5C7B72245C2B10078E8E7 /* level1.txt in Resources */,
 				A98D7AEA224457710075051C /* Assets.xcassets in Resources */,
@@ -298,7 +307,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.oaccamsrazor.Project8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Debug;
@@ -315,7 +324,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.oaccamsrazor.Project8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Release;
