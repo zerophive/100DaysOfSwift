@@ -6,6 +6,9 @@
 //  Copyright © 2019 oaccamsrazor. All rights reserved.
 //
 
+// All the GCD code needs rethinking, what a mess
+// too many sections mixed together, view, model and controller are not distinct enough.
+
 import UIKit
 
 class ViewController: UIViewController {
@@ -19,7 +22,11 @@ class ViewController: UIViewController {
 	var correctLetters = [String]()
 
 	var wrongGuesses = 0
-	var score = 0
+	var score: Int = 0 {
+		didSet {
+			updateScore()
+		}
+	}
 	
 	var alphabet = [String]()
 	var allWords = [String]()
@@ -28,8 +35,7 @@ class ViewController: UIViewController {
 		view = UIView()
 		view.backgroundColor = .white
 
-		loadAlphabet()
-		performSelector(inBackground: #selector(loadWordFiles), with: nil)
+		performSelector(inBackground: #selector(loadFiles), with: nil)
 
 		deadMan = UIImageView()
 		deadMan.translatesAutoresizingMaskIntoConstraints = false
@@ -49,44 +55,24 @@ class ViewController: UIViewController {
 		buttonsView.alignment = .fill
 		buttonsView.distribution = .fillEqually
 		
-		for row in 0..<2 {
+		for row in 0..<4 {
 			let rStackView = UIStackView()
 			rStackView.axis = .horizontal
 			rStackView.alignment = .fill
 			rStackView.distribution = .fillEqually
 			
-			for col in 0..<7 {
+			for _ in 0..<(row < 2 ? 7 : 6) {
 				let button = UIButton(type: .system)
 				button.layer.borderWidth = 1
 				button.layer.borderColor = UIColor.gray.cgColor
 				button.addTarget(self, action: #selector(letterTapped), for: .touchUpInside)
-				button.setTitle("\(alphabet[row * 7 + col])", for: .normal)
+				button.setTitle("?", for: .normal)
 				letterButtons.append(button)
 				rStackView.addArrangedSubview(button)
 			}
 			
 			buttonsView.addArrangedSubview(rStackView)
 		}
-		
-		for row in 2..<4 {
-			let rStackView = UIStackView()
-			rStackView.axis = .horizontal
-			rStackView.alignment = .fill
-			rStackView.distribution = .fillEqually
-			
-			for col in 0..<6 {
-				let button = UIButton(type: .system)
-				button.layer.borderWidth = 1
-				button.layer.borderColor = UIColor.gray.cgColor
-				button.addTarget(self, action: #selector(letterTapped), for: .touchUpInside)
-				button.setTitle("\(alphabet[row * 6 + col + 2])", for: .normal)
-				letterButtons.append(button)
-				rStackView.addArrangedSubview(button)
-			}
-			
-			buttonsView.addArrangedSubview(rStackView)
-		}
-		
 		view.addSubview(buttonsView)
 		
 		NSLayoutConstraint.activate([
@@ -109,22 +95,16 @@ class ViewController: UIViewController {
 		
 	}
 	
-//	override func viewDidLoad() {
-//		super.viewDidLoad()
-//
-//	}
-	
-	// MARK: - @objc methods
-	@objc func loadAlphabet() {
-		if let alphabetFileURL = Bundle.main.url(forResource: "alphabet", withExtension: "txt") {
-			if let theLetters = try? String(contentsOf: alphabetFileURL) {
-				
-				alphabet = theLetters.components(separatedBy: "\n")
-			}
-		}
+	override func viewDidLoad() {
+		super.viewDidLoad()
+		
+		navigationItem.rightBarButtonItem = UIBarButtonItem(title: "reset", style: .done, target: self, action: #selector(reStartGame))
+		navigationItem.leftBarButtonItem = UIBarButtonItem(title: "clue", style: .plain, target: self, action: #selector(showClue))
+//		print(navigationItem.leftBarButtonItem?.view)
 	}
 	
-	@objc func loadWordFiles() {
+	// MARK: - @objc methods
+	@objc func loadFiles() {
 		var tmpAllWords = [String]()
 		
 		if let wordsFileURL = Bundle.main.url(forResource: "words", withExtension: "txt") {
@@ -140,7 +120,16 @@ class ViewController: UIViewController {
 		}
 		
 		allWords.shuffle()
-		startGame(nil)
+		
+		if let alphabetFileURL = Bundle.main.url(forResource: "alphabet", withExtension: "txt") {
+			if let theLetters = try? String(contentsOf: alphabetFileURL) {
+				
+				alphabet = theLetters.components(separatedBy: "\n")
+			}
+		}
+
+		loadLetterButtons()
+		startGame()
 	}
 	
 	@objc func letterTapped(_ sender: UIButton) {
@@ -161,38 +150,42 @@ class ViewController: UIViewController {
 			}
 			updateGuessWord()
 		}
-		sender.isHidden = true
+		sender.isEnabled = false
 		
 		checkIfWon()
 	}
 	
 	@objc func moreKillHangman() {
-		deadMan.image = UIImage(named: "hangman\(wrongGuesses)")
-		
-		if wrongGuesses == 7 {
-			deadMan.image = UIImage(named: "hangman\(wrongGuesses + 1)")
-			let ac = UIAlertController(title: "You Killed Him!!", message: "don't kill people", preferredStyle: .alert)
-			ac.addAction(UIAlertAction(title: "Play Again?", style: .default, handler: startGame))
-			present(ac, animated: true)
+		DispatchQueue.main.async {
+			self.deadMan.image = UIImage(named: "hangman\(self.wrongGuesses)")
+			self.checkHangingState()
 		}
 	}
 	
 	@objc func resetLetters() {
-		for button in letterButtons {
-			button.isHidden = false
+		DispatchQueue.main.async {
+			for button in self.letterButtons {
+				button.isEnabled = true
+			}
 		}
 	}
 	
-	@objc func updateScore() {
-		title = "Score \(score)"
+	@objc func reStartGame() {
+		wrongGuesses = 0
+		startGame()
+	}
+	
+	@objc func showClue() {
+		let ac = UIAlertController(title: "You are really stupid…", message: "\(currentGameWord)", preferredStyle: .alert)
+		ac.addAction(UIAlertAction(title: "play on", style: .default))
+		present(ac, animated: true)
 	}
 
 	// MARK: - methods
-	func startGame(_ action: UIAlertAction?) {
-		wrongGuesses = 0
-		performSelector(onMainThread: #selector(moreKillHangman), with: nil, waitUntilDone: false)
-		performSelector(onMainThread: #selector(resetLetters), with: nil, waitUntilDone: false)
-		performSelector(onMainThread: #selector(updateScore), with: nil, waitUntilDone: false)
+	func startGame() {
+		moreKillHangman()
+		resetLetters()
+		score = 0
 
 		currentGameWord = allWords.removeFirst()
 		
@@ -200,7 +193,34 @@ class ViewController: UIViewController {
 		updateGuessWord()
 	}
 	
+	func reStartGameUI(_ action: UIAlertAction?) {
+		reStartGame()
+	}
+
+	func loadLetterButtons() {
+		DispatchQueue.main.async { [weak self] in
+			for (index, button) in self!.letterButtons.enumerated() {
+				button.setTitle("\(self!.alphabet[index])", for: .normal)
+			}
+		}
+	}
 	
+	func updateScore() {
+		DispatchQueue.main.async {
+			self.title = "Score: \(self.score)"
+		}
+	}
+
+	func checkHangingState() {
+		if wrongGuesses == 7 {
+			score -= 1
+			deadMan.image = UIImage(named: "hangman\(wrongGuesses + 1)")
+			let ac = UIAlertController(title: "You Killed Him!!", message: "don't kill people", preferredStyle: .alert)
+			ac.addAction(UIAlertAction(title: "Play Again", style: .default, handler: reStartGameUI))
+			present(ac, animated: true)
+		}
+	}
+
 	func updateGuessWord() {
 		spacedGuessWord = spacedGuessWord.trimmingCharacters(in: .whitespaces)
 		
@@ -214,7 +234,7 @@ class ViewController: UIViewController {
 		if !spacedGuessWord.contains("_") {
 			score += 1
 			let ac = UIAlertController(title: "YOU WON!!", message: nil, preferredStyle: .alert)
-			ac.addAction(UIAlertAction(title: "Play Again?", style: .default, handler: startGame))
+			ac.addAction(UIAlertAction(title: "Play Again", style: .default, handler: reStartGameUI))
 			present(ac, animated: true)
 		}
 	}
