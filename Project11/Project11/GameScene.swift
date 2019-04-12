@@ -10,7 +10,6 @@ import SpriteKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
 	var scoreLabel: SKLabelNode!
-	
 	var score = 0 {
 		didSet {
 			scoreLabel.text = "Score: \(score)"
@@ -18,7 +17,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	var editLabel: SKLabelNode!
-	
 	var editingMode: Bool = false {
 		didSet {
 			if editingMode {
@@ -29,7 +27,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 	}
 	
+	var ballsLabel: SKLabelNode!
+	var balls = 5 {
+		didSet {
+			ballsLabel.text = "Balls: \(balls)"
+		}
+	}
+	
 	let ballColors: [String] = ["Blue", "Cyan", "Green", "Grey", "Purple", "Red", "Yellow"]
+	var boxes = [SKNode]()
 	
 	// MARKER: - SKScene overrides
     override func didMove(to view: SKView) {
@@ -49,6 +55,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		editLabel.text = "Edit"
 		editLabel.position = CGPoint(x: 80, y: 700)
 		addChild(editLabel)
+		
+		ballsLabel = SKLabelNode(fontNamed: "Chalkduster")
+		ballsLabel.text = "Balls: 5"
+		ballsLabel.horizontalAlignmentMode = .center
+		ballsLabel.position = CGPoint(x: 512, y: 700)
+		addChild(ballsLabel)
 		
 		physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
 		
@@ -81,8 +93,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				box.position = location
 				box.physicsBody = SKPhysicsBody(rectangleOf: box.size)
 				box.physicsBody?.isDynamic = false
+				box.name = "box"
+				boxes.append(box)
 				addChild(box)
-			} else {
+			} else if balls > 0 {
+				balls -= 1
 				let ballColor = "ball\(ballColors.randomElement() ?? "ballRed")"
 				let ball = SKSpriteNode(imageNamed: ballColor)
 				ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2.0)
@@ -148,9 +163,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		if object.name == "good" {
 			destroy(ball: ball)
 			score += 1
+			balls += 1
 		} else if object.name == "bad" {
 			destroy(ball: ball)
 			score -= 1
+			if balls <= 0 {
+				if childNode(withName: "ball") == nil {
+					gameOver()
+				}
+			}
+		} else if object.name == "box" {
+			destroy(ball: object)
 		}
 	}
 	
@@ -160,5 +183,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			addChild(fireParticles)
 		}
 		ball.removeFromParent()
+	}
+	
+	func gameOver() {
+		let ac = UIAlertController(title: "Game Over!", message: nil, preferredStyle: .alert)
+		ac.addAction(UIAlertAction(title: "Play Again", style: .default) { [weak self] _ in
+			self?.balls = 5
+			self?.score = 0
+			if let boxes = self?.boxes  {
+				for box in boxes {
+					box.removeFromParent()
+				}
+			}
+			self?.boxes.removeAll()
+		})
+		view?.window?.rootViewController?.present(ac, animated: true)
 	}
 }
